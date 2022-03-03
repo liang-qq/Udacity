@@ -1,0 +1,16 @@
+WITH t1 AS (SELECT CONCAT(cu.first_name,' ', cu.last_name) AS full_name, DATE_TRUNC('month', p.payment_date) pay_mon, p.amount pay_amount
+FROM customer cu
+JOIN payment p
+ON cu.customer_id=p.customer_id),
+t2 AS (SELECT CONCAT(cu.first_name,' ', cu.last_name) AS full_name, SUM(p.amount)
+FROM customer cu
+JOIN payment p
+ON cu.customer_id=p.customer_id
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 10)
+SELECT  t1.pay_mon, t1.full_name, COUNT(t1.pay_amount) pay_countpermon, SUM(t1.pay_amount) pay_amount
+FROM t1
+WHERE t1.full_name IN (SELECT full_name FROM t2)
+GROUP BY 1,2
+ORDER BY 2,1;
